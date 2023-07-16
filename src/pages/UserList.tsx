@@ -1,13 +1,23 @@
 import React from 'react';
 import { Input, Spinner, Text, View } from 'native-base';
-import { SearchIcon } from '../assets/icons';
-import { useGetUsers } from '../hooks/useGetUsers';
-import { UsersList } from '../components';
-import { PageLayout } from '../layouts/PageLayout';
+
+import { Filters, UsersList } from 'components';
+import { PageLayout } from 'layouts/PageLayout';
+import { SearchIcon } from 'assets/icons';
+import { useGetUsers } from 'hooks';
 
 export const UserList = () => {
-  const { filter, handleFilterChange, isLoading, users, userCounter } =
-    useGetUsers();
+  const {
+    activeFilter,
+    filterName,
+    filters,
+    handleFilterNameChange,
+    isLoading,
+    resetActiveFilter,
+    setSelectedFilter,
+    userCounter,
+    users,
+  } = useGetUsers();
 
   if (isLoading) return <Spinner size={50} my={5} />;
 
@@ -20,13 +30,20 @@ export const UserList = () => {
           my={4}
           placeholder="Buscar"
           size="sm"
-          value={filter}
-          onChangeText={handleFilterChange}
+          value={filterName}
+          onChangeText={handleFilterNameChange}
           InputLeftElement={
             <View ml={2}>
               <SearchIcon />
             </View>
           }
+        />
+
+        <Filters
+          filters={filters}
+          onSelectFilter={setSelectedFilter}
+          filter={activeFilter}
+          onDeleteFilter={resetActiveFilter}
         />
 
         <UsersList users={users} />

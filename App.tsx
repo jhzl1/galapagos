@@ -1,7 +1,8 @@
 import React from 'react';
 import { NativeBaseProvider } from 'native-base';
-import { Router } from './src/router';
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
+
+import { Router } from './src/router';
 
 const queryClient = new QueryClient();
 

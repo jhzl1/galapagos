@@ -1,42 +1,43 @@
 import { useState } from 'react';
-import { galapagosApi } from '../api/galapagosApi';
-import {
-  User,
-  UserList as UserListInterface,
-} from '../interfaces/list.interface';
 import { useQuery } from '@tanstack/react-query';
 
-const getUserList = async () => {
-  const { data } = await galapagosApi.get<UserListInterface>('/lista');
+import { getUserList } from 'services';
 
-  const userKeys = Object.keys(data);
-
-  const formattedUsers: User[] = [];
-
-  for (const userKey of userKeys) {
-    const user = data[userKey];
-    formattedUsers.push(user);
-  }
-
-  return formattedUsers;
-};
 export const useGetUsers = () => {
-  const [filter, setFilter] = useState('');
+  const [filterName, setFilterName] = useState('');
+  const [activeFilter, setActiveFilter] = useState('');
+  const filters = ['Activo', 'Inactivo'];
 
   const { data: users = [], isLoading } = useQuery({
     queryKey: ['users'],
     queryFn: getUserList,
     select: users =>
       users.filter(user => {
-        return (
-          user.nombre.toLowerCase().includes(filter.toLowerCase()) ||
-          user.apellido.toLowerCase().includes(filter.toLowerCase())
-        );
+        const isNameMatch =
+          user.nombre.toLowerCase().includes(filterName.toLowerCase()) ||
+          user.apellido.toLowerCase().includes(filterName.toLowerCase());
+
+        const isStateMatch = !activeFilter || user.estado === activeFilter;
+
+        return isNameMatch && isStateMatch;
       }),
   });
 
-  const handleFilterChange = (text: string) => setFilter(text);
+  const handleFilterNameChange = (text: string) => setFilterName(text);
+  const setSelectedFilter = (newFilter: string) => setActiveFilter(newFilter);
+  const resetActiveFilter = () => setActiveFilter('');
+
   const userCounter = users.length;
 
-  return { users, isLoading, handleFilterChange, userCounter, filter };
+  return {
+    activeFilter,
+    filterName,
+    filters,
+    handleFilterNameChange,
+    isLoading,
+    resetActiveFilter,
+    setSelectedFilter,
+    userCounter,
+    users,
+  };
 };
